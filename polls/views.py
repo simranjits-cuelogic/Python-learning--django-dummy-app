@@ -1,46 +1,43 @@
 # for render views
 from django.shortcuts import render, get_object_or_404
 
-# for HttpResponse
-from django.http import HttpResponse
-from django.template import loader
-
-# import Http404
-# from django.http import Http404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.views import generic
 
 # import Question model
-from .models import Question
+from .models import Question, Choice
 
-def index(request):
-    latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    context = {
-        'latest_questions' : latest_question_list
-    }
-    # dept. on HttpResponse, loader
-    # template = loader.get_template('polls/index.html')
-    # return HttpResponse(template.render(context, request))
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'latest_questions'
 
-    # dept. on render
-    return render(request, 'polls/index.html', context)
+    def get_queryset(self):
+        """Return the last five published questions."""
+        return Question.objects.recent()
 
-def profile(request):
-    return HttpResponse("Hello, world. Profile here.")
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'polls/details.html'
 
-def detail(request, question_id):
-    # custom method in Question model
-    # question = Question.objects.get_question(question_id)
-
-    # dept. on get_object_or_404
-    question = get_object_or_404(Question, pk=question_id)
-
-    context = {'question' : question}
-    # dept. on render
-    return render(request, 'polls/details.html', context)
-
-def results(request, question_id):
-    response = "You're looking at the results of question %s"
-    return HttpResponse(response % question_id)
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html'
 
 def vote(request, question_id):
-    return HttpResponse("you're voting on question %s." % question_id)
-
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST['choice'])
+    except (KeyError, Choice.DoesNotExist):
+        # redisplay the question voting form
+        return render(request, 'polls/details.html' , {
+            'question' : question,
+            'error_message' : "You didn\'t select a choice."
+            })
+    else:
+        selected_choice.votes +=1
+        selected_choice.save()
+        # Always return and HttpResponseRedirect after succesfully dealing
+        # with POST data. This porevents data from being posted twice if a
+        # user hits the back button.
+    return HttpResponseRedirect(reverse('polls:results', args=(question.id,) ))

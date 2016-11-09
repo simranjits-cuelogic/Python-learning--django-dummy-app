@@ -14,6 +14,7 @@ class QuestionQuerySet(models.query.QuerySet):
             days=7)
         )
 
+    # dummy method for testing method chaining
     def recent1(self):
         return self.filter(pub_date__gte = timezone.now() - datetime.timedelta(
             days=7)
