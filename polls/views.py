@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views import generic
 
 # import Question model
@@ -19,6 +20,9 @@ class IndexView(generic.ListView):
 class DetailView(generic.DetailView):
     model = Question
     template_name = 'polls/details.html'
+
+    def get_queryset(self):
+        return Question.objects.filter(pub_date__lte = timezone.now())
 
 class ResultsView(generic.DetailView):
     model = Question

@@ -10,9 +10,8 @@ from django.http import Http404
 # query set chaining for custion filters (ie. Class level fiters)
 class QuestionQuerySet(models.query.QuerySet):
     def recent(self):
-        return self.filter(pub_date__gte = timezone.now() - datetime.timedelta(
-            days=7)
-        )
+        return self.filter(pub_date__lte = timezone.now()
+        ).order_by('-pub_date')[:5]
 
     # dummy method for testing method chaining
     def recent1(self):
