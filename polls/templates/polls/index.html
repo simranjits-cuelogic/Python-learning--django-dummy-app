@@ -1,6 +1,8 @@
 {% load static %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
+<link rel="stylesheet" type="text/css" href="
+    {% static 'polls/stylesheets/style.css' %}" />
+<script src="{% static 'polls/javascripts/comman.js' %}"></script>
 
 {% if latest_questions %}
 <ul>
