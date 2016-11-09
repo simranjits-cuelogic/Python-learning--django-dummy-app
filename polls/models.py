@@ -59,6 +59,9 @@ class Question(models.Model):
         """Boolean <= is post latest or not"""
         now = timezone.now()
         return now - datetime.timedelta(days=1) <= self.pub_date <= now
+    latest_posted.admin_order_field = 'pub_date'
+    latest_posted.boolean = True
+    latest_posted.short_description = 'Published recently?'
 
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
